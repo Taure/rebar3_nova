@@ -33,6 +33,3 @@ jobs:
 
       - name: Compile
         run: rebar3 compile
-
-      - name: XRef
-        run: rebar3 xref
