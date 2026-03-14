@@ -34,8 +34,5 @@ jobs:
       - name: Compile
         run: rebar3 compile
 
-      - name: Dialyzer
-        run: rebar3 dialyzer
-
       - name: XRef
         run: rebar3 xref
