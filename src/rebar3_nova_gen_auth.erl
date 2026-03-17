@@ -28,8 +28,8 @@ do(State) ->
     generate_migration(AppDir),
     generate_user_schema(App, AppDir),
     generate_user_token_schema(App, AppDir),
+    generate_auth_config(App, AppDir),
     generate_accounts(App, AppDir),
-    generate_auth(App, AppDir),
     generate_session_controller(App, AppDir),
     generate_registration_controller(App, AppDir),
     generate_user_controller(App, AppDir),
@@ -154,8 +154,7 @@ generate_user_schema(App, AppDir) ->
         "    case kura_changeset:get_change(CS, password) of\n"
         "        undefined -> CS;\n"
         "        Password ->\n"
-        "            Hashed = list_to_binary(\n"
-        "                bcrypt:hashpw(binary_to_list(Password), bcrypt:gen_salt())),\n"
+        "            Hashed = nova_auth_password:hash(Password),\n"
         "            kura_changeset:put_change(CS, hashed_password, Hashed)\n"
         "    end;\n"
         "maybe_hash_password(CS) ->\n"
@@ -190,196 +189,72 @@ generate_user_token_schema(App, AppDir) ->
     rebar3_nova_utils:write_file_if_not_exists(FileName, Content).
 
 %%======================================================================
-%% Accounts context
+%% Auth config module (nova_auth behaviour)
 %%======================================================================
 
-generate_accounts(App, AppDir) ->
-    Mod = App ++ "_accounts",
+generate_auth_config(App, AppDir) ->
+    Mod = App ++ "_auth_config",
     Repo = App ++ "_repo",
     UserMod = App ++ "_user",
     TokenMod = App ++ "_user_token",
     FileName = filename:join([AppDir, "src", Mod ++ ".erl"]),
     Content = [
         "-module(", Mod, ").\n"
+        "-behaviour(nova_auth).\n\n"
+        "-export([config/0]).\n\n"
+        "config() ->\n"
+        "    #{\n"
+        "        repo => ", Repo, ",\n"
+        "        user_schema => ", UserMod, ",\n"
+        "        token_schema => ", TokenMod, "\n"
+        "    }.\n"
+    ],
+    rebar3_nova_utils:write_file_if_not_exists(FileName, Content).
+
+%%======================================================================
+%% Accounts context (thin wrappers around nova_auth)
+%%======================================================================
+
+generate_accounts(App, AppDir) ->
+    Mod = App ++ "_accounts",
+    AuthConfig = App ++ "_auth_config",
+    UserMod = App ++ "_user",
+    FileName = filename:join([AppDir, "src", Mod ++ ".erl"]),
+    Content = [
+        "-module(", Mod, ").\n"
         "-include_lib(\"kura/include/kura.hrl\").\n\n"
         "-export([\n"
         "    register_user/1,\n"
-        "    get_user_by_email_and_password/2,\n"
-        "    get_user_by_id/1,\n"
+        "    authenticate/2,\n"
         "    generate_session_token/1,\n"
         "    get_user_by_session_token/1,\n"
         "    delete_session_token/1,\n"
-        "    delete_all_user_tokens/1,\n"
         "    change_user_password/3,\n"
         "    change_user_email/3,\n"
         "    user_to_json/1,\n"
         "    format_errors/1\n"
         "]).\n\n"
-        "-define(SESSION_VALIDITY_DAYS, 14).\n\n"
-        "%%----------------------------------------------------------------------\n"
-        "%% Registration\n"
-        "%%----------------------------------------------------------------------\n\n"
+        "-define(AUTH, ", AuthConfig, ").\n\n"
         "register_user(Params) ->\n"
-        "    Now = calendar:universal_time(),\n"
-        "    CS = ", UserMod, ":registration_changeset(#{}, Params),\n"
-        "    CS1 = kura_changeset:put_change(CS, inserted_at, Now),\n"
-        "    CS2 = kura_changeset:put_change(CS1, updated_at, Now),\n"
-        "    ", Repo, ":insert(CS2).\n\n"
-        "%%----------------------------------------------------------------------\n"
-        "%% Authentication\n"
-        "%%----------------------------------------------------------------------\n\n"
-        "get_user_by_email_and_password(Email, Password) ->\n"
-        "    Q = kura_query:where(kura_query:from(", UserMod, "), {email, Email}),\n"
-        "    case ", Repo, ":all(Q) of\n"
-        "        {ok, [User]} ->\n"
-        "            case verify_password(Password, maps:get(hashed_password, User)) of\n"
-        "                true -> {ok, User};\n"
-        "                false -> {error, invalid_credentials}\n"
-        "            end;\n"
-        "        _ ->\n"
-        "            dummy_verify(),\n"
-        "            {error, invalid_credentials}\n"
-        "    end.\n\n"
-        "get_user_by_id(Id) ->\n"
-        "    case ", Repo, ":get(", UserMod, ", Id) of\n"
-        "        {ok, User} -> {ok, User};\n"
-        "        _ -> {error, not_found}\n"
-        "    end.\n\n"
-        "%%----------------------------------------------------------------------\n"
-        "%% Session tokens\n"
-        "%%----------------------------------------------------------------------\n\n"
+        "    nova_auth_accounts:register(?AUTH,\n"
+        "        fun ", UserMod, ":registration_changeset/2, Params).\n\n"
+        "authenticate(Email, Password) ->\n"
+        "    nova_auth_accounts:authenticate(?AUTH, Email, Password).\n\n"
         "generate_session_token(User) ->\n"
-        "    Raw = crypto:strong_rand_bytes(32),\n"
-        "    SessionToken = base64:encode(Raw),\n"
-        "    HashedToken = base64:encode(crypto:hash(sha256, Raw)),\n"
-        "    Now = calendar:universal_time(),\n"
-        "    CS = kura_changeset:cast(", TokenMod, ", #{}, #{user_id => maps:get(id, User),\n"
-        "        token => HashedToken, context => <<\"session\">>,\n"
-        "        inserted_at => Now}, [user_id, token, context, inserted_at]),\n"
-        "    case ", Repo, ":insert(CS) of\n"
-        "        {ok, _} -> {ok, SessionToken};\n"
-        "        {error, _} = Err -> Err\n"
-        "    end.\n\n"
-        "get_user_by_session_token(SessionToken) ->\n"
-        "    try\n"
-        "        Raw = base64:decode(SessionToken),\n"
-        "        HashedToken = base64:encode(crypto:hash(sha256, Raw)),\n"
-        "        Q = kura_query:where(\n"
-        "                kura_query:where(kura_query:from(", TokenMod, "),\n"
-        "                    {token, HashedToken}),\n"
-        "                {context, <<\"session\">>}),\n"
-        "        case ", Repo, ":all(Q) of\n"
-        "            {ok, [Token]} ->\n"
-        "                case token_valid(maps:get(inserted_at, Token)) of\n"
-        "                    true -> get_user_by_id(maps:get(user_id, Token));\n"
-        "                    false -> {error, token_expired}\n"
-        "                end;\n"
-        "            _ -> {error, not_found}\n"
-        "        end\n"
-        "    catch\n"
-        "        _:_ -> {error, invalid_token}\n"
-        "    end.\n\n"
-        "delete_session_token(SessionToken) ->\n"
-        "    try\n"
-        "        Raw = base64:decode(SessionToken),\n"
-        "        HashedToken = base64:encode(crypto:hash(sha256, Raw)),\n"
-        "        Q = kura_query:where(\n"
-        "                kura_query:where(kura_query:from(", TokenMod, "),\n"
-        "                    {token, HashedToken}),\n"
-        "                {context, <<\"session\">>}),\n"
-        "        ", Repo, ":delete_all(Q),\n"
-        "        ok\n"
-        "    catch\n"
-        "        _:_ -> ok\n"
-        "    end.\n\n"
-        "delete_all_user_tokens(UserId) ->\n"
-        "    Q = kura_query:where(kura_query:from(", TokenMod, "), {user_id, UserId}),\n"
-        "    ", Repo, ":delete_all(Q),\n"
-        "    ok.\n\n"
-        "%%----------------------------------------------------------------------\n"
-        "%% Password & email changes\n"
-        "%%----------------------------------------------------------------------\n\n"
+        "    nova_auth_session:generate_session_token(?AUTH, User).\n\n"
+        "get_user_by_session_token(Token) ->\n"
+        "    nova_auth_session:get_user_by_session_token(?AUTH, Token).\n\n"
+        "delete_session_token(Token) ->\n"
+        "    nova_auth_session:delete_session_token(?AUTH, Token).\n\n"
         "change_user_password(User, CurrentPassword, NewParams) ->\n"
-        "    case verify_password(CurrentPassword, maps:get(hashed_password, User)) of\n"
-        "        true ->\n"
-        "            Now = calendar:universal_time(),\n"
-        "            CS = ", UserMod, ":password_changeset(User, NewParams),\n"
-        "            CS1 = kura_changeset:put_change(CS, updated_at, Now),\n"
-        "            case ", Repo, ":update(CS1) of\n"
-        "                {ok, UpdatedUser} ->\n"
-        "                    delete_all_user_tokens(maps:get(id, User)),\n"
-        "                    {ok, UpdatedUser};\n"
-        "                {error, _} = Err -> Err\n"
-        "            end;\n"
-        "        false ->\n"
-        "            {error, invalid_password}\n"
-        "    end.\n\n"
+        "    nova_auth_accounts:change_password(?AUTH, User, CurrentPassword, NewParams).\n\n"
         "change_user_email(User, CurrentPassword, NewParams) ->\n"
-        "    case verify_password(CurrentPassword, maps:get(hashed_password, User)) of\n"
-        "        true ->\n"
-        "            Now = calendar:universal_time(),\n"
-        "            CS = ", UserMod, ":email_changeset(User, NewParams),\n"
-        "            CS1 = kura_changeset:put_change(CS, updated_at, Now),\n"
-        "            case ", Repo, ":update(CS1) of\n"
-        "                {ok, UpdatedUser} ->\n"
-        "                    delete_all_user_tokens(maps:get(id, User)),\n"
-        "                    {ok, UpdatedUser};\n"
-        "                {error, _} = Err -> Err\n"
-        "            end;\n"
-        "        false ->\n"
-        "            {error, invalid_password}\n"
-        "    end.\n\n"
-        "%%----------------------------------------------------------------------\n"
-        "%% JSON helpers\n"
-        "%%----------------------------------------------------------------------\n\n"
+        "    nova_auth_accounts:change_identity(?AUTH, User, CurrentPassword, NewParams).\n\n"
         "user_to_json(User) ->\n"
         "    #{<<\"id\">> => maps:get(id, User),\n"
         "      <<\"email\">> => maps:get(email, User)}.\n\n"
         "format_errors(#kura_changeset{errors = Errors}) ->\n"
-        "    maps:from_list([{atom_to_binary(F), M} || {F, M} <- Errors]).\n\n"
-        "%%----------------------------------------------------------------------\n"
-        "%% Internal\n"
-        "%%----------------------------------------------------------------------\n\n"
-        "verify_password(Password, HashedPassword) ->\n"
-        "    Hash = list_to_binary(\n"
-        "        bcrypt:hashpw(binary_to_list(Password), binary_to_list(HashedPassword))),\n"
-        "    crypto:hash_equals(Hash, HashedPassword).\n\n"
-        "dummy_verify() ->\n"
-        "    bcrypt:hashpw(\"dummy\", bcrypt:gen_salt()),\n"
-        "    false.\n\n"
-        "token_valid(InsertedAt) ->\n"
-        "    Now = calendar:datetime_to_gregorian_seconds(calendar:universal_time()),\n"
-        "    TokenTime = calendar:datetime_to_gregorian_seconds(InsertedAt),\n"
-        "    (Now - TokenTime) < (?SESSION_VALIDITY_DAYS * 24 * 60 * 60).\n"
-    ],
-    rebar3_nova_utils:write_file_if_not_exists(FileName, Content).
-
-%%======================================================================
-%% Auth security module
-%%======================================================================
-
-generate_auth(App, AppDir) ->
-    Mod = App ++ "_auth",
-    Accounts = App ++ "_accounts",
-    FileName = filename:join([AppDir, "src", Mod ++ ".erl"]),
-    Content = [
-        "-module(", Mod, ").\n\n"
-        "-export([require_authenticated/1]).\n\n"
-        "require_authenticated(Req) ->\n"
-        "    case nova_session:get(Req, <<\"session_token\">>) of\n"
-        "        {ok, Token} ->\n"
-        "            case ", Accounts, ":get_user_by_session_token(Token) of\n"
-        "                {ok, User} ->\n"
-        "                    {true, User};\n"
-        "                _ ->\n"
-        "                    unauthorized()\n"
-        "            end;\n"
-        "        _ ->\n"
-        "            unauthorized()\n"
-        "    end.\n\n"
-        "unauthorized() ->\n"
-        "    Body = thoas:encode(#{<<\"error\">> => <<\"unauthorized\">>}),\n"
-        "    {false, 401, #{<<\"content-type\">> => <<\"application/json\">>}, Body}.\n"
+        "    maps:from_list([{atom_to_binary(F), M} || {F, M} <- Errors]).\n"
     ],
     rebar3_nova_utils:write_file_if_not_exists(FileName, Content).
 
@@ -396,7 +271,7 @@ generate_session_controller(App, AppDir) ->
         "-export([create/1, delete/1]).\n\n"
         "create(Req) ->\n"
         "    #{<<\"email\">> := Email, <<\"password\">> := Password} = maps:get(json, Req),\n"
-        "    case ", Accounts, ":get_user_by_email_and_password(Email, Password) of\n"
+        "    case ", Accounts, ":authenticate(Email, Password) of\n"
         "        {ok, User} ->\n"
         "            {ok, Token} = ", Accounts, ":generate_session_token(User),\n"
         "            ok = nova_session:set(Req, <<\"session_token\">>, Token),\n"
@@ -651,14 +526,14 @@ generate_test_suite(App, AppDir) ->
 %%======================================================================
 
 print_instructions(App) ->
-    AuthMod = App ++ "_auth",
+    AuthConfig = App ++ "_auth_config",
     SessionCtrl = App ++ "_session_controller",
     RegCtrl = App ++ "_registration_controller",
     UserCtrl = App ++ "_user_controller",
     rebar_api:info("~n==> Authentication files generated successfully!~n", []),
     rebar_api:info("Next steps:~n", []),
-    rebar_api:info("1. Add kura and bcrypt to your deps in rebar.config:~n", []),
-    rebar_api:info("   {deps, [..., kura, bcrypt]}.~n~n", []),
+    rebar_api:info("1. Add kura and nova_auth to your deps in rebar.config:~n", []),
+    rebar_api:info("   {deps, [..., kura, nova_auth]}.~n~n", []),
     rebar_api:info("2. Add these routes to your router:~n", []),
     rebar_api:info("   %% Public routes~n", []),
     rebar_api:info("   #{prefix => <<\"/api\">>,~n"
@@ -671,7 +546,7 @@ print_instructions(App) ->
                    "     ]}~n", [RegCtrl, SessionCtrl]),
     rebar_api:info("   %% Protected routes~n", []),
     rebar_api:info("   #{prefix => <<\"/api\">>,~n"
-                   "     security => fun ~s:require_authenticated/1,~n"
+                   "     security => nova_auth_security:require_authenticated(~s),~n"
                    "     plugins => [{pre_request, nova_request_plugin,~n"
                    "                  #{decode_json_body => true}}],~n"
                    "     routes => [~n"
@@ -679,7 +554,7 @@ print_instructions(App) ->
                    "       {<<\"/me\">>, fun ~s:show/1, #{methods => [get]}},~n"
                    "       {<<\"/me/password\">>, fun ~s:update_password/1, #{methods => [put]}},~n"
                    "       {<<\"/me/email\">>, fun ~s:update_email/1, #{methods => [put]}}~n"
-                   "     ]}~n", [AuthMod, SessionCtrl, UserCtrl, UserCtrl, UserCtrl]),
+                   "     ]}~n", [AuthConfig, SessionCtrl, UserCtrl, UserCtrl, UserCtrl]),
     rebar_api:info("3. Add src/schemas and src/migrations to src_dirs in rebar.config:~n", []),
     rebar_api:info("   {src_dirs, [\"src\", \"src/controllers\", \"src/schemas\", \"src/migrations\"]}.~n~n", []),
     rebar_api:info("4. Run the migration:~n", []),

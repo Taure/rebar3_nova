@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.39.1">
+    <meta name="project" content="rebar3_nova v0.8.0">
+
+
+    <title>Rebar3 plugin for Nova — rebar3_nova v0.8.0</title>
+
+    <link rel="stylesheet" href="dist/html-erlang-7YNYEB7F.css" />
+
+    <script defer src="dist/sidebar_items-F712C730.js"></script>
+    <script defer src="docs_config.js"></script>
+    <script defer src="dist/html-HBZYRXZS.js"></script>
+
+  </head>
+  <body>
+    <script>(()=>{var t="ex_doc:settings",e="dark";var o="dark",s="light";var E="sidebar_state",n="closed";var r="sidebar_width";var a="sidebar-open";var i=new URLSearchParams(window.location.search),S=i.get("theme")||JSON.parse(localStorage.getItem(t)||"{}").theme;(S===o||S!==s&&window.matchMedia("(prefers-color-scheme: dark)").matches)&&document.body.classList.add(e);var d=sessionStorage.getItem(E),A=d!==n&&!window.matchMedia(`screen and (max-width: ${768}px)`).matches;document.body.classList.toggle(a,A);var c=sessionStorage.getItem(r);c&&document.body.style.setProperty("--sidebarWidth",`${c}px`);var p=/(Macintosh|iPhone|iPad|iPod)/.test(window.navigator.userAgent);document.documentElement.classList.toggle("apple-os",p);})();
+</script>
+
+<div class="body-wrapper">
+
+<button id="sidebar-menu" class="sidebar-button sidebar-toggle" aria-label="toggle sidebar" aria-controls="sidebar">
+  <i class="ri-menu-line ri-lg" title="Collapse/expand sidebar"></i>
+</button>
+
+<nav id="sidebar" class="sidebar">
+
+  <div class="sidebar-header">
+    <div class="sidebar-projectInfo">
+
+      <div>
+        <a href="readme.html" class="sidebar-projectName" translate="no">
+rebar3_nova
+        </a>
+        <div class="sidebar-projectVersion" translate="no">
+          v0.8.0
+        </div>
+      </div>
+    </div>
+    <ul id="sidebar-list-nav" class="sidebar-list-nav" role="tablist" data-extras=""></ul>
+  </div>
+</nav>
+
+<output role="status" id="toast"></output>
+
+<main class="content page-extra" id="main" data-type="extras">
+  <div id="content" class="content-inner">
+    <div class="top-search">
+      <div class="search-settings">
+        <form class="search-bar" action="search.html">
+          <label class="search-label">
+            <span class="sr-only">Search documentation of rebar3_nova</span>
+            <div class="search-input-wrapper">
+              <input name="q" type="text" class="search-input" placeholder="Press / to search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+              <button type="button" tabindex="-1" class="search-close-button" aria-hidden="true">
+                <i class="ri-close-line ri-lg" title="Cancel search"></i>
+              </button>
+            </div>
+          </label>
+        </form>
+        <div class="autocomplete">
+        </div>
+        <div class="engine-selector" data-multiple="false">
+          <button type="button" class="engine-button" aria-label="Select search engine" aria-haspopup="true" aria-expanded="false">
+            <i class="ri-search-2-line" aria-hidden="true"></i>
+            <span class="engine-name">Default</span>
+            <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+          </button>
+          <div class="engine-dropdown" hidden role="menu">
+
+              <button type="button"
+                      class="engine-option"
+                      data-engine-url="search.html?q="
+                      role="menuitemradio"
+                      aria-checked="true">
+                <span class="name">Default</span>
+                <span class="help">In-browser search</span>
+              </button>
+
+          </div>
+        </div>
+        <button class="icon-settings display-settings">
+          <i class="ri-settings-3-line"></i>
+          <span class="sr-only">Settings</span>
+        </button>
+      </div>
+    </div>
+
+<div id="top-content">
+  <div class="heading-with-actions top-heading">
+    <h1>Rebar3 plugin for Nova</h1>
+
+
+      <a href="https://github.com/novaframework/rebar3_nova/blob/v0.8.0/README.md#L1" title="View Source" class="icon-action" rel="help">
+        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        <span class="sr-only">View Source</span>
+      </a>
+
+  </div>
+
+
+<p></p><p>A rebar plugin for nova</p><h2 id="build" class="section-heading"><a href="#build" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Build</span></h2><pre><code class="makeup shell" translate="no"><span class="gp unselectable">$ </span><span class="">rebar3 compile
+</span></code></pre><h2 id="installation" class="section-heading"><a href="#installation" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Installation</span></h2><p>Add the plugin to your rebar config (<code class="inline">~/.config/rebar3/rebar.config</code>):</p><pre><code class="makeup erlang" translate="no"><span class="p" data-group-id="8092794671-1">{</span><span class="ss">plugins</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="8092794671-2">[</span><span class="w">
+    </span><span class="p" data-group-id="8092794671-3">{</span><span class="ss">rebar3_nova</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="8092794671-4">{</span><span class="ss">git</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;https://github.com/novaframework/rebar3_nova.git&quot;</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="8092794671-5">{</span><span class="ss">branch</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;master&quot;</span><span class="p" data-group-id="8092794671-5">}</span><span class="p" data-group-id="8092794671-4">}</span><span class="p" data-group-id="8092794671-3">}</span><span class="w">
+</span><span class="p" data-group-id="8092794671-2">]</span><span class="p" data-group-id="8092794671-1">}</span><span class="p">.</span></code></pre><p>For latest stable from hex:</p><pre><code class="makeup erlang" translate="no"><span class="p" data-group-id="8348241749-1">{</span><span class="ss">plugins</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="8348241749-2">[</span><span class="ss">rebar3_nova</span><span class="p" data-group-id="8348241749-2">]</span><span class="p" data-group-id="8348241749-1">}</span><span class="p">.</span></code></pre><p>Then just call your plugin directly in an existing application:</p><pre><code class="makeup shell" translate="no"><span class="gp unselectable">$ </span><span class="">rebar3 nova
+</span><span class="">===&gt; Fetching rebar3_nova
+</span><span class="">===&gt; Compiling rebar3_nova
+</span></code></pre><h2 id="commands" class="section-heading"><a href="#commands" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Commands</span></h2><h3 id="nova-serve-auto-reload-development-server" class="section-heading"><a href="#nova-serve-auto-reload-development-server" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text"><code class="inline">nova serve</code> — Auto-reload development server</span></h3><p>Starts the application with auto-reload. Source file changes are automatically compiled and hot-loaded.</p><pre><code class="makeup shell" translate="no"><span class="gp unselectable">$ </span><span class="">rebar3 nova serve
+</span></code></pre><h3 id="nova-routes-list-compiled-routes" class="section-heading"><a href="#nova-routes-list-compiled-routes" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text"><code class="inline">nova routes</code> — List compiled routes</span></h3><p>Displays the compiled routing tree with methods, paths, and handler modules.</p><pre><code class="makeup shell" translate="no"><span class="gp unselectable">$ </span><span class="">rebar3 nova routes
+</span></code></pre><h3 id="nova-gen_controller-generate-a-controller" class="section-heading"><a href="#nova-gen_controller-generate-a-controller" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text"><code class="inline">nova gen_controller</code> — Generate a controller</span></h3><p>Scaffolds a controller module with stub functions for CRUD actions.</p><pre><code class="makeup shell" translate="no"><span class="gp unselectable">$ </span><span class="">rebar3 nova gen_controller --name users
+</span><span class="">===&gt; Created src/controllers/myapp_users_controller.erl
+</span><span class="">
+</span><span class="gp unselectable">$ </span><span class="">rebar3 nova gen_controller --name users --actions list,show
+</span><span class="">===&gt; Created src/controllers/myapp_users_controller.erl
+</span></code></pre><p><strong>Options:</strong></p><table><thead><tr><th style="text-align: left;">Flag</th><th style="text-align: left;">Required</th><th style="text-align: left;">Default</th><th style="text-align: left;">Description</th></tr></thead><tbody><tr><td style="text-align: left;"><code class="inline">--name</code>, <code class="inline">-n</code></td><td style="text-align: left;">yes</td><td style="text-align: left;">—</td><td style="text-align: left;">Controller name</td></tr><tr><td style="text-align: left;"><code class="inline">--actions</code>, <code class="inline">-a</code></td><td style="text-align: left;">no</td><td style="text-align: left;"><code class="inline">list,show,create,update,delete</code></td><td style="text-align: left;">Comma-separated actions to generate</td></tr></tbody></table><p>Generated functions return stub responses:</p><ul><li><code class="inline">list/1</code>, <code class="inline">show/1</code>, <code class="inline">update/1</code> return <code class="inline">{json, #{&lt;&lt;&quot;message&quot;&gt;&gt; =&gt; &lt;&lt;&quot;TODO&quot;&gt;&gt;}}</code></li><li><code class="inline">create/1</code> returns <code class="inline">{status, 201, #{}, #{&lt;&lt;&quot;message&quot;&gt;&gt; =&gt; &lt;&lt;&quot;TODO&quot;&gt;&gt;}}</code></li><li><code class="inline">delete/1</code> returns <code class="inline">{status, 204}</code></li></ul><p>If the file already exists, the command skips it with a warning.</p><h3 id="nova-gen_resource-generate-a-full-resource" class="section-heading"><a href="#nova-gen_resource-generate-a-full-resource" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text"><code class="inline">nova gen_resource</code> — Generate a full resource</span></h3><p>Combines controller generation, JSON schema creation, and prints route snippets to add to your router.</p><pre><code class="makeup shell" translate="no"><span class="gp unselectable">$ </span><span class="">rebar3 nova gen_resource --name products
+</span><span class="">===&gt; Created src/controllers/myapp_products_controller.erl
+</span><span class="">===&gt; Created priv/schemas/product.json
+</span><span class="">===&gt;
+</span><span class="">===&gt; Add these routes to your router:
+</span><span class="">===&gt;   {&lt;&lt;&quot;/products&quot;&gt;&gt;, {myapp_products_controller, list}, #{methods =&gt; [get]}}
+</span><span class="">===&gt;   {&lt;&lt;&quot;/products/:id&quot;&gt;&gt;, {myapp_products_controller, show}, #{methods =&gt; [get]}}
+</span><span class="">===&gt;   {&lt;&lt;&quot;/products&quot;&gt;&gt;, {myapp_products_controller, create}, #{methods =&gt; [post]}}
+</span><span class="">===&gt;   {&lt;&lt;&quot;/products/:id&quot;&gt;&gt;, {myapp_products_controller, update}, #{methods =&gt; [put]}}
+</span><span class="">===&gt;   {&lt;&lt;&quot;/products/:id&quot;&gt;&gt;, {myapp_products_controller, delete}, #{methods =&gt; [delete]}}
+</span></code></pre><p><strong>Options:</strong> Same as <code class="inline">gen_controller</code>.</p><p>The JSON schema is placed in <code class="inline">priv/schemas/{singular}.json</code> with <code class="inline">id</code> and <code class="inline">name</code> fields as a starting point. The resource name is naively singularized by stripping a trailing &quot;s&quot;.</p><h3 id="nova-gen_test-generate-a-common-test-suite" class="section-heading"><a href="#nova-gen_test-generate-a-common-test-suite" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text"><code class="inline">nova gen_test</code> — Generate a Common Test suite</span></h3><p>Scaffolds a CT suite with test cases for CRUD actions using <code class="inline">httpc</code>.</p><pre><code class="makeup shell" translate="no"><span class="gp unselectable">$ </span><span class="">rebar3 nova gen_test --name users
+</span><span class="">===&gt; Created test/myapp_users_controller_SUITE.erl
+</span></code></pre><p><strong>Options:</strong></p><table><thead><tr><th style="text-align: left;">Flag</th><th style="text-align: left;">Required</th><th style="text-align: left;">Default</th><th style="text-align: left;">Description</th></tr></thead><tbody><tr><td style="text-align: left;"><code class="inline">--name</code>, <code class="inline">-n</code></td><td style="text-align: left;">yes</td><td style="text-align: left;">—</td><td style="text-align: left;">Resource name</td></tr></tbody></table><p>The generated suite starts <code class="inline">inets</code> and the application in <code class="inline">init_per_suite</code>, then tests each CRUD endpoint against <code class="inline">http://localhost:8080/{name}</code>.</p><h3 id="nova-openapi-generate-openapi-3-0-3-spec" class="section-heading"><a href="#nova-openapi-generate-openapi-3-0-3-spec" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text"><code class="inline">nova openapi</code> — Generate OpenAPI 3.0.3 spec</span></h3><p>Generates an OpenAPI 3.0.3 JSON specification from compiled routes and any JSON schemas found in <code class="inline">priv/schemas/</code>.</p><pre><code class="makeup shell" translate="no"><span class="gp unselectable">$ </span><span class="">rebar3 nova openapi
+</span><span class="">===&gt; OpenAPI spec written to /path/to/myapp/priv/assets/openapi.json
+</span><span class="">===&gt; Swagger UI written to /path/to/myapp/priv/assets/swagger.html
+</span><span class="">
+</span><span class="gp unselectable">$ </span><span class="">rebar3 nova openapi --title &quot;My API&quot; --api-version 1.0.0
+</span><span class="gp unselectable">$ </span><span class="">rebar3 nova openapi --output custom/path/openapi.json
+</span></code></pre><p><strong>Options:</strong></p><table><thead><tr><th style="text-align: left;">Flag</th><th style="text-align: left;">Required</th><th style="text-align: left;">Default</th><th style="text-align: left;">Description</th></tr></thead><tbody><tr><td style="text-align: left;"><code class="inline">--output</code>, <code class="inline">-o</code></td><td style="text-align: left;">no</td><td style="text-align: left;"><code class="inline">priv/assets/openapi.json</code></td><td style="text-align: left;">Output file path</td></tr><tr><td style="text-align: left;"><code class="inline">--title</code>, <code class="inline">-t</code></td><td style="text-align: left;">no</td><td style="text-align: left;">app name</td><td style="text-align: left;">API title</td></tr><tr><td style="text-align: left;"><code class="inline">--api-version</code>, <code class="inline">-v</code></td><td style="text-align: left;">no</td><td style="text-align: left;"><code class="inline">0.1.0</code></td><td style="text-align: left;">API version string</td></tr></tbody></table><p>A <code class="inline">swagger.html</code> file is also generated alongside the spec for quick browser-based exploration. The output directory is created automatically if it doesn't exist.</p><h3 id="nova-middleware-show-plugin-middleware-chains" class="section-heading"><a href="#nova-middleware-show-plugin-middleware-chains" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text"><code class="inline">nova middleware</code> — Show plugin/middleware chains</span></h3><p>Displays global plugins and per-route-group plugin chains, preserving the grouping defined in your router's <code class="inline">routes/1</code> function.</p><pre><code class="makeup shell" translate="no"><span class="gp unselectable">$ </span><span class="">rebar3 nova middleware
+</span><span class="">
+</span><span class="">=== Global Plugins ===
+</span><span class="">  (none)
+</span><span class="">
+</span><span class="">=== Route Groups (myapp_router) ===
+</span><span class="">
+</span><span class="">  Group: prefix=/  security=false
+</span><span class="">  Plugins:
+</span><span class="">    (inherits global: none)
+</span><span class="">  Routes:
+</span><span class="">    GET /heartbeat -&gt; myapp_health_controller:heartbeat
+</span><span class="">    GET /health -&gt; myapp_health_controller:health
+</span><span class="">
+</span><span class="">  Group: prefix=/api  security=fun myapp_auth:validate_token/1
+</span><span class="">  Plugins:
+</span><span class="">    pre_request: nova_cors_plugin #{allow_origins =&gt; &lt;&lt;&quot;*&quot;&gt;&gt;}
+</span><span class="">    pre_request: nova_request_logger #{level =&gt; info}
+</span><span class="">  Routes:
+</span><span class="">    GET /users -&gt; myapp_users_controller:list
+</span><span class="">    POST /users -&gt; myapp_users_controller:create
+</span></code></pre><p>Groups that don't specify their own <code class="inline">plugins</code> key inherit from the global Nova plugin configuration.</p><h3 id="nova-config-show-nova-configuration" class="section-heading"><a href="#nova-config-show-nova-configuration" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text"><code class="inline">nova config</code> — Show Nova configuration</span></h3><p>Displays all Nova configuration keys read from <code class="inline">sys.config</code>, showing current values or <code class="inline">(default)</code> when using built-in defaults.</p><pre><code class="makeup shell" translate="no"><span class="gp unselectable">$ </span><span class="">rebar3 nova config
+</span><span class="">
+</span><span class="">=== Nova Configuration ===
+</span><span class="">
+</span><span class="">  bootstrap_application     myapp
+</span><span class="">  environment               dev
+</span><span class="">  cowboy_configuration       #{port =&gt; 8080} (default)
+</span><span class="">  plugins                   [] (default)
+</span><span class="">  json_lib                  thoas (default)
+</span><span class="">  use_stacktrace            false (default)
+</span><span class="">  dispatch_backend          persistent_term (default)
+</span></code></pre><p>Warns if <code class="inline">bootstrap_application</code> is not set.</p><h3 id="nova-audit-audit-route-security" class="section-heading"><a href="#nova-audit-audit-route-security" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text"><code class="inline">nova audit</code> — Audit route security</span></h3><p>Checks compiled routes for common security issues and prints findings grouped by severity.</p><pre><code class="makeup shell" translate="no"><span class="gp unselectable">$ </span><span class="">rebar3 nova audit
+</span><span class="">
+</span><span class="">=== Security Audit ===
+</span><span class="">
+</span><span class="">  WARNINGS:
+</span><span class="">    POST /users (myapp_users_controller) has no security
+</span><span class="">    PUT /users/1 (myapp_users_controller) has no security
+</span><span class="">    DELETE /users/1 (myapp_users_controller) has no security
+</span><span class="">
+</span><span class="">  INFO:
+</span><span class="">    GET /users (myapp_users_controller) has no security
+</span><span class="">    GET /health (myapp_health_controller) has no security
+</span><span class="">
+</span><span class="">  Summary: 3 warning(s), 2 info(s)
+</span></code></pre><p><strong>Rules checked:</strong></p><ul><li><strong>Warning</strong>: Mutation methods (POST, PUT, DELETE, PATCH) without a security callback</li><li><strong>Warning</strong>: Wildcard method (<code class="inline">'_'</code>) matching all HTTP methods on a route</li><li><strong>Info</strong>: GET routes without a security callback</li></ul><h3 id="nova-release-build-a-release" class="section-heading"><a href="#nova-release-build-a-release" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text"><code class="inline">nova release</code> — Build a release</span></h3><p>Wraps the standard rebar3 release provider. If <code class="inline">priv/schemas/</code> exists, regenerates the OpenAPI spec before building.</p><pre><code class="makeup shell" translate="no"><span class="gp unselectable">$ </span><span class="">rebar3 nova release
+</span><span class="">===&gt; Regenerating OpenAPI spec...
+</span><span class="">===&gt; Release built successfully with profile &#39;prod&#39;
+</span><span class="">
+</span><span class="gp unselectable">$ </span><span class="">rebar3 nova release --profile staging
+</span></code></pre><p><strong>Options:</strong></p><table><thead><tr><th style="text-align: left;">Flag</th><th style="text-align: left;">Required</th><th style="text-align: left;">Default</th><th style="text-align: left;">Description</th></tr></thead><tbody><tr><td style="text-align: left;"><code class="inline">--profile</code>, <code class="inline">-p</code></td><td style="text-align: left;">no</td><td style="text-align: left;"><code class="inline">prod</code></td><td style="text-align: left;">Release profile to use</td></tr></tbody></table>
+
+</div>
+
+<div class="bottom-actions" id="bottom-actions">
+  <div class="bottom-actions-item">
+
+  </div>
+  <div class="bottom-actions-item">
+
+      <a href="license.html" class="bottom-actions-button" rel="next">
+        <span class="subheader">
+          Next Page →
+        </span>
+        <span class="title">
+LICENSE
+        </span>
+      </a>
+
+  </div>
+</div>
+    <footer class="footer">
+      <p>
+
+          <span class="line">
+            <a href="https://hex.pm/packages/rebar3_nova/0.8.0" class="footer-hex-package">Hex Package</a>
+
+            <a href="https://preview.hex.pm/preview/rebar3_nova/0.8.0">Hex Preview</a>
+
+              (<a href="https://preview.hex.pm/preview/rebar3_nova/0.8.0/show/README.md">current file</a>)
+
+          </span>
+
+        <span class="line">
+          <button class="a-main footer-button display-quick-switch" title="Search HexDocs packages">
+            Search HexDocs
+          </button>
+
+            <a href="rebar3_nova.epub" title="ePub version">
+              Download ePub version
+            </a>
+
+        </span>
+      </p>
+
+      <p class="built-using">
+        Built using
+        <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.39.1) for the
+
+          <a href="https://erlang.org" title="Erlang" target="_blank" translate="no">Erlang programming language</a>
+
+      </p>
+
+    </footer>
+  </div>
+</main>
+</div>
+
+  </body>
+</html>
