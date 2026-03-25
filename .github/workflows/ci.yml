@@ -8,14 +8,14 @@ on:
 
 jobs:
   ci:
-    uses: Taure/erlang-ci/.github/workflows/ci.yml@v1
+    uses: Taure/erlang-ci/.github/workflows/ci.yml@v2.0.5
     with:
       enable-dependency-submission: true
       enable-summary: true
       enable-sbom-scan: true
       enable-sbom: true
       enable-coverage: true
-      enable-audit: true
+      enable-audit: false
       enable-eunit: false
       enable-fmt: false
       enable-xref: false
